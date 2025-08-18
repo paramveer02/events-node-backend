@@ -1,0 +1,16 @@
+{
+  "name": "events-api",
+  "version": "1.0.0",
+  "description": "Backend for the my events project ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Paramveer Marwah",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0",
+    "mongoose": "^8.17.1",
+    "node": "^24.6.0"
+  }
+}
