@@ -5,6 +5,11 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import helmet from "helmet";
 import { authrouter } from "./routes/authRouter.js";
+import notFound from "./middlewares/notFound.js";
+import errorHandler from "./middlewares/errorHandler.js";
+import { userRouter } from "./routes/userRouter.js";
+import { eventRouter } from "./routes/eventsRouter.js";
+import aiRouter from "./routes/aiRouter.js";
 
 export const app = express();
 
@@ -12,10 +17,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // CORS
-const allowedOrigins = [
-  process.env.CLIENT_URL,
-  "http://localhost:5173/",
-].filter(Boolean);
+const allowedOrigins = [process.env.CLIENT_URL, "http://localhost:5173"].filter(
+  Boolean
+);
 
 app.use(
   cors({
@@ -37,4 +41,11 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 // routes
-app.use("api/v1/auth", authrouter);
+app.use("/api/v1/auth", authrouter);
+app.use("/api/v1/users", userRouter);
+app.use("/api/v1/events", eventRouter);
+app.use("/api/ai", aiRouter);
+
+// error handler
+app.use(notFound);
+app.use(errorHandler);
