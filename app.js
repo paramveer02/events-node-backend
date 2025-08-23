@@ -40,6 +40,9 @@ app.use(express.json({ limit: "10kb" }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
+// Healthcheck
+app.get("/health", (_, res) => res.status(200).send("ok"));
+
 // routes
 app.use("/api/v1/auth", authrouter);
 app.use("/api/v1/users", userRouter);
