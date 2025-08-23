@@ -33,8 +33,8 @@ export const logout = function (req, res) {
   res.cookie("token", "", {
     httpOnly: true,
     expires: new Date(0),
-    sameSite: "lax",
-    secure: false,
+    sameSite: "None",
+    secure: true,
   });
   res.status(StatusCodes.OK).json({ message: "User logged out" });
 };
