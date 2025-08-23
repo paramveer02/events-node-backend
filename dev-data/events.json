@@ -1,0 +1,82 @@
+[
+  {
+    "title": "Connaught Place Indie Music Night",
+    "description": "An evening of live indie bands and food pop-ups at Central Park.",
+    "date": "2025-10-03T19:00:00.000Z",
+    "location": "Central Park, Connaught Place, New Delhi",
+    "city": "delhi",
+    "geo": { "type": "Point", "coordinates": [77.2167, 28.6328] }
+  },
+  {
+    "title": "Hauz Khas Sunset Photowalk",
+    "description": "Guided photowalk around the Fort and Lake with a pro photographer.",
+    "date": "2025-10-05T16:30:00.000Z",
+    "location": "Hauz Khas Fort, New Delhi",
+    "city": "delhi",
+    "geo": { "type": "Point", "coordinates": [77.1926, 28.5494] }
+  },
+  {
+    "title": "Tech Meetup: JS & AI Demos",
+    "description": "Lightning talks on modern JS stacks and practical AI demos.",
+    "date": "2025-10-09T18:30:00.000Z",
+    "location": "India Habitat Centre, Lodhi Road, New Delhi",
+    "city": "delhi",
+    "geo": { "type": "Point", "coordinates": [77.2194, 28.597] }
+  },
+  {
+    "title": "Pragati Maidan Maker Fair",
+    "description": "Makers, hardware hacks, 3D printing, robotics—hands-on stalls.",
+    "date": "2025-10-12T10:00:00.000Z",
+    "location": "Pragati Maidan, New Delhi",
+    "city": "delhi",
+    "geo": { "type": "Point", "coordinates": [77.2432, 28.6131] }
+  },
+  {
+    "title": "JLN Stadium Night Run 10K",
+    "description": "Chip-timed 10K night run; finisher medal and refreshments included.",
+    "date": "2025-10-18T20:00:00.000Z",
+    "location": "Jawaharlal Nehru Stadium, New Delhi",
+    "city": "delhi",
+    "geo": { "type": "Point", "coordinates": [77.2366, 28.5827] }
+  },
+  {
+    "title": "Saket Comedy & Open Mic",
+    "description": "Stand-up sets by local comics plus an open mic slot list.",
+    "date": "2025-10-20T19:30:00.000Z",
+    "location": "Select Citywalk, Saket, New Delhi",
+    "city": "delhi",
+    "geo": { "type": "Point", "coordinates": [77.2195, 28.5286] }
+  },
+  {
+    "title": "Okhla Design Market",
+    "description": "Pop-up stalls from indie designers and craft studios.",
+    "date": "2025-10-25T11:00:00.000Z",
+    "location": "NSIC Ground, Okhla, New Delhi",
+    "city": "delhi",
+    "geo": { "type": "Point", "coordinates": [77.269, 28.549] }
+  },
+  {
+    "title": "Noida Gaming LAN Party",
+    "description": "Bring your rig or book a station; tournaments all day.",
+    "date": "2025-10-26T10:00:00.000Z",
+    "location": "Sector 18, Noida",
+    "city": "noida",
+    "geo": { "type": "Point", "coordinates": [77.324, 28.57] }
+  },
+  {
+    "title": "Gurugram Food Truck Festival",
+    "description": "Top food trucks, live music, kids zone and late-night vibes.",
+    "date": "2025-11-01T17:00:00.000Z",
+    "location": "DLF CyberHub, Gurugram",
+    "city": "gurugram",
+    "geo": { "type": "Point", "coordinates": [77.087, 28.4946] }
+  },
+  {
+    "title": "Greater Kailash Book Swap",
+    "description": "Bring 2–5 books, swap with other readers, tea and cookies on us.",
+    "date": "2025-11-02T15:00:00.000Z",
+    "location": "GK-2 M Block Market, New Delhi",
+    "city": "delhi",
+    "geo": { "type": "Point", "coordinates": [77.24, 28.548] }
+  }
+]
