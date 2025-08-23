@@ -1,10 +1,21 @@
 # 🎉 Events API Backend
 
+![Node.js](https://img.shields.io/badge/Node.js-18+-green?logo=node.js)
+![Express](https://img.shields.io/badge/Express.js-Backend-lightgrey?logo=express)
+![MongoDB](https://img.shields.io/badge/Database-MongoDB-green?logo=mongodb)
+![Mongoose](https://img.shields.io/badge/ODM-Mongoose-red?logo=mongoose)
+![Postman](https://img.shields.io/badge/Tested%20With-Postman-orange?logo=postman)
+![Security](https://img.shields.io/badge/Security-Helmet%20%7C%20CORS-blue)
+![Auth](https://img.shields.io/badge/Auth-JWT%20%7C%20Cookies-purple)
+![AI](https://img.shields.io/badge/GenAI-Google%20Gemini-yellow?logo=google)
+![Deploy](https://img.shields.io/badge/Deployed%20On-Render-blueviolet?logo=render)
+
 The backend service for **EventSpark**, a modern event discovery and management platform.  
 Built with **Node.js, Express, and MongoDB**, this backend powers authentication, event CRUD operations, AI city guide integration, and geolocation-based event search.
 
 🌐 **Live API**: [https://events-server-wnax.onrender.com](https://events-server-wnax.onrender.com)  
 ⚡ **Health Check**: [https://events-server-wnax.onrender.com/health](https://events-server-wnax.onrender.com/health)
+
 
 ---
 
