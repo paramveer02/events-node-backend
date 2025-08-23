@@ -76,7 +76,7 @@ Built with **Node.js, Express, and MongoDB**, this backend powers authentication
 
 🧪 Testing
 
-We use Postman for API testing.
+Postman for API testing.
 Collection includes:
 
 Signup/Login flows
@@ -85,11 +85,15 @@ CRUD operations on Events
 
 AI Guide query
 
+---
+
 🚀 Deployment
 
 Render: Auto-deploy on push to main branch
 
 Environment: Configured via Render dashboard
+
+---
 
 ## ⚙️ Installation
 
