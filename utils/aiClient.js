@@ -9,7 +9,6 @@ if (!process.env.GEMINI_API_KEY) {
 
 export const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// Prefer a stable, widely-available model id
 export const cityGuideModel = genAI.getGenerativeModel({
   model: "gemini-1.5-flash",
 });
