@@ -2,7 +2,7 @@ import { asyncWrapper } from "../utils/asyncWrapper.js";
 import Event from "../models/Event.js";
 import { StatusCodes } from "http-status-codes";
 import { geoCodeAddress, reverseGeocode } from "../utils/geoCode.js";
-import { NotFoundError } from "../errors/customErrors.js";
+import { NotFoundError, UnauthorizedError } from "../errors/customErrors.js";
 
 export const createEvent = asyncWrapper(async function (req, res, next) {
   const { title, description, date, location } = req.body;
@@ -28,29 +28,62 @@ export const createEvent = asyncWrapper(async function (req, res, next) {
 });
 
 export const getMyEvents = asyncWrapper(async function (req, res) {
-  const events = await Event.find({ organizer: req.user.id }).sort({
-    date: 1,
+  const page = parseInt(req.query.page) || 1;
+  const limit = Math.min(parseInt(req.query.limit) || 50, 100); // Max 100 per page
+  const skip = (page - 1) * limit;
+
+  // Run queries in parallel for better performance
+  const [events, total] = await Promise.all([
+    Event.find({ organizer: req.user.id })
+      .sort({ date: 1 })
+      .skip(skip)
+      .limit(limit)
+      .lean(), // lean() for read-only queries - faster and uses less memory
+    Event.countDocuments({ organizer: req.user.id }),
+  ]);
+
+  res.status(StatusCodes.OK).json({
+    status: "success",
+    results: events.length,
+    total,
+    page,
+    totalPages: Math.ceil(total / limit),
+    events,
   });
-  res
-    .status(StatusCodes.OK)
-    .json({ status: "success", results: events.length, events });
 });
 
 // controllers/eventController.js
 export const getEventsNearMe = asyncWrapper(async function (req, res) {
-  let { lat, lng, radiusKm = 25, city } = req.query;
+  let { lat, lng, radiusKm = 25, city, page = 1, limit = 50 } = req.query;
 
-  // Case 1: user passed city manually
+  // Parse pagination params
+  const pageNum = parseInt(page) || 1;
+  const limitNum = Math.min(parseInt(limit) || 50, 100); // Max 100 per page
+  const skip = (pageNum - 1) * limitNum;
+
+  // Case 1: user passed city manually (no coordinates)
   if (city && (!lat || !lng)) {
-    const events = await Event.find({ city: city.toLowerCase() })
-      .sort({ date: 1 })
-      .limit(100);
-    return res
-      .status(200)
-      .json({ status: "success", results: events.length, events });
+    const [events, total] = await Promise.all([
+      Event.find({ city: city.toLowerCase() })
+        .sort({ date: 1 })
+        .skip(skip)
+        .limit(limitNum)
+        .populate("organizer", "name email")
+        .lean(),
+      Event.countDocuments({ city: city.toLowerCase() }),
+    ]);
+
+    return res.status(200).json({
+      status: "success",
+      results: events.length,
+      total,
+      page: pageNum,
+      totalPages: Math.ceil(total / limitNum),
+      events,
+    });
   }
 
-  // Case 2: user gave coordinates
+  // Case 2: user gave coordinates - use geospatial query
   if (!lat || !lng) {
     return res
       .status(400)
@@ -59,23 +92,67 @@ export const getEventsNearMe = asyncWrapper(async function (req, res) {
 
   const latitude = Number(lat);
   const longitude = Number(lng);
+  const radiusMeters = Number(radiusKm) * 1000;
 
+  // Use $geoNear for radius-based search (most performant for geo queries)
+  const events = await Event.aggregate([
+    {
+      $geoNear: {
+        near: {
+          type: "Point",
+          coordinates: [longitude, latitude],
+        },
+        distanceField: "distance",
+        maxDistance: radiusMeters,
+        spherical: true,
+        query: {}, // Can add additional filters here
+      },
+    },
+    { $sort: { date: 1 } },
+    { $skip: skip },
+    { $limit: limitNum },
+    {
+      $lookup: {
+        from: "users",
+        localField: "organizer",
+        foreignField: "_id",
+        as: "organizer",
+      },
+    },
+    { $unwind: "$organizer" },
+    {
+      $project: {
+        "organizer.password": 0,
+        "organizer.passwordChangedAt": 0,
+        "organizer.__v": 0,
+      },
+    },
+  ]);
+
+  // Get total count for pagination
+  const totalCount = await Event.countDocuments({
+    geo: {
+      $near: {
+        $geometry: {
+          type: "Point",
+          coordinates: [longitude, latitude],
+        },
+        $maxDistance: radiusMeters,
+      },
+    },
+  });
+
+  // Get city name from reverse geocoding
   const userCity = await reverseGeocode(latitude, longitude);
-  if (!userCity) {
-    return res
-      .status(404)
-      .json({ status: "fail", message: "Could not determine city" });
-  }
-
-  const events = await Event.find({ city: userCity.toLowerCase() })
-    .sort({ date: 1 })
-    .limit(100)
-    .populate("organizer");
 
   res.status(200).json({
     status: "success",
-    city: userCity,
+    city: userCity || "Unknown",
     results: events.length,
+    total: totalCount,
+    page: pageNum,
+    totalPages: Math.ceil(totalCount / limitNum),
+    radiusKm: Number(radiusKm),
     events,
   });
 });
@@ -94,18 +171,37 @@ export const deleteMyEvent = asyncWrapper(async function (req, res) {
     .json({ status: "success", message: "Event deleted" });
 });
 
-export const getAllEvents = asyncWrapper(async (_req, res) => {
-  const events = await Event.find()
-    .sort({ date: 1 })
-    .limit(200)
-    .populate("organizer");
-  res
-    .status(StatusCodes.OK)
-    .json({ status: "success", results: events.length, events });
+export const getAllEvents = asyncWrapper(async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = Math.min(parseInt(req.query.limit) || 50, 100); // Max 100 per page
+  const skip = (page - 1) * limit;
+
+  // Run queries in parallel for better performance
+  const [events, total] = await Promise.all([
+    Event.find()
+      .sort({ date: 1 })
+      .skip(skip)
+      .limit(limit)
+      .populate("organizer", "name email")
+      .lean(), // lean() for read-only queries - faster and uses less memory
+    Event.countDocuments(),
+  ]);
+
+  res.status(StatusCodes.OK).json({
+    status: "success",
+    results: events.length,
+    total,
+    page,
+    totalPages: Math.ceil(total / limit),
+    events,
+  });
 });
 
 export const getCurrentEvent = asyncWrapper(async (req, res) => {
-  const event = await Event.findById(req.params.id).populate("organizer");
+  const event = await Event.findById(req.params.id)
+    .populate("organizer", "name email")
+    .lean();
+
   if (!event) throw new NotFoundError("Event not found");
 
   res.status(StatusCodes.OK).json({ status: "success", event });

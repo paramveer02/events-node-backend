@@ -1,6 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import User from "../models/User.js";
 import { asyncWrapper } from "../utils/asyncWrapper.js";
+import { NotFoundError } from "../errors/customErrors.js";
 
 export const getCurrentUser = asyncWrapper(async function (req, res) {
   const user = await User.findById(req.user.id);

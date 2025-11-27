@@ -35,6 +35,15 @@ function extractText(resp) {
 
 export async function getCityGuide(req, res) {
   try {
+    // Check if AI features are available
+    if (!cityGuideModel) {
+      return res.status(503).json({
+        status: "fail",
+        message:
+          "AI city guide features are not available. GEMINI_API_KEY is not configured.",
+      });
+    }
+
     const parsed = CityGuideInput.safeParse(req.body);
     if (!parsed.success) {
       return res.status(400).json({

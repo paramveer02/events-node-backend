@@ -47,7 +47,13 @@ const eventSchema = new mongoose.Schema(
   }
 );
 
+// Geospatial index for location-based queries
 eventSchema.index({ geo: "2dsphere" });
+
+// Compound indexes for optimized queries
+eventSchema.index({ city: 1, date: 1 }); // For city-based event searches sorted by date
+eventSchema.index({ organizer: 1, date: 1 }); // For user's own events sorted by date
+eventSchema.index({ date: 1 }); // For general date-based queries
 
 const Event = mongoose.model("Event", eventSchema);
 
