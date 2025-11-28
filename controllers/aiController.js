@@ -33,6 +33,38 @@ function extractText(resp) {
   return "";
 }
 
+// Helper to extract JSON from text that might have markdown code blocks
+function extractJSON(text) {
+  // First try: direct parse
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    // Ignore, try other methods
+  }
+
+  // Second try: extract from markdown code block
+  const codeBlockMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (codeBlockMatch) {
+    try {
+      return JSON.parse(codeBlockMatch[1].trim());
+    } catch (e) {
+      // Ignore, try next method
+    }
+  }
+
+  // Third try: find JSON object in text
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (jsonMatch) {
+    try {
+      return JSON.parse(jsonMatch[0]);
+    } catch (e) {
+      // Ignore
+    }
+  }
+
+  return null;
+}
+
 export async function getCityGuide(req, res) {
   try {
     // Check if AI features are available
@@ -71,15 +103,13 @@ export async function getCityGuide(req, res) {
     const result = await cityGuideModel.generateContent({
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       generationConfig: {
-        temperature: 0.6,
-        maxOutputTokens: 800,
-        responseMimeType: "application/json",
+        temperature: 0.7,
+        maxOutputTokens: 1000,
       },
     });
 
     const raw = extractText(result?.response);
     if (!raw) {
-      // Log once for debugging, then return a helpful message
       console.error(
         "[AI] Empty response",
         JSON.stringify(result?.response || {}, null, 2)
@@ -89,18 +119,16 @@ export async function getCityGuide(req, res) {
         .json({ status: "error", message: "Empty AI response from model" });
     }
 
-    let payload;
-    try {
-      payload = JSON.parse(raw);
-    } catch {
-      const match = raw.match(/\{[\s\S]*\}$/);
-      if (match) {
-        payload = JSON.parse(match[0]);
-      }
-    }
+    console.log("[AI DEBUG] Raw response length:", raw.length);
+    console.log("[AI DEBUG] Raw response preview:", raw.substring(0, 300));
+
+    const payload = extractJSON(raw);
 
     if (!payload) {
-      console.error("[AI] Could not parse JSON:", raw);
+      console.error(
+        "[AI] getCityGuide - Could not parse JSON. Raw response:",
+        raw
+      );
       return res
         .status(502)
         .json({ status: "error", message: "Failed to parse AI JSON" });
@@ -161,9 +189,8 @@ export async function getCityGuideQuery(req, res) {
     const result = await cityGuideModel.generateContent({
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       generationConfig: {
-        temperature: 0.6,
-        maxOutputTokens: 800,
-        responseMimeType: "application/json",
+        temperature: 0.7,
+        maxOutputTokens: 1000,
       },
     });
 
@@ -178,18 +205,17 @@ export async function getCityGuideQuery(req, res) {
         .json({ status: "error", message: "Empty AI response from model" });
     }
 
-    let payload;
-    try {
-      payload = JSON.parse(raw);
-    } catch {
-      const match = raw.match(/\{[\s\S]*\}$/);
-      if (match) {
-        payload = JSON.parse(match[0]);
-      }
-    }
+    console.log("[AI DEBUG] City:", targetCity);
+    console.log("[AI DEBUG] Raw response length:", raw.length);
+    console.log("[AI DEBUG] Raw response preview:", raw.substring(0, 300));
+
+    const payload = extractJSON(raw);
 
     if (!payload) {
-      console.error("[AI] Could not parse JSON:", raw);
+      console.error(
+        "[AI] getCityGuideQuery - Could not parse JSON. Raw response:",
+        raw
+      );
       return res
         .status(502)
         .json({ status: "error", message: "Failed to parse AI JSON" });
